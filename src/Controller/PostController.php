@@ -175,19 +175,24 @@ class PostController extends AbstractController
     }
 
 
-    #[Route('/update/post', name: 'update_post')]
-    public function update()
+    /**
+     * @Route("/update/post/{id}", name="update_post")
+     */
+    #[Route('/update/post/{id}', name: 'update_post')]
+    public function update(Request $req, UserInterface $user)
     {
-        $id = 2;
-        $post = $this->em->getRepository(Post::class)->find($id);
-        $post->setTitle('Titulo actualizado')
-            ->setDescription('nueva descripcion')
-            ->setUrl('titulo-actualizado')
-            ->setUpdateDate(new \DateTime());
-        $this->em->persist($post);
-        $this->em->flush();
+        $postId = $req->request;
+        dd($postId);
+        $userId = $user->getId();
+        // $post = $this->em->getRepository(Post::class)->find($postId);
+        // $post->setTitle('Titulo actualizado')
+        //     ->setDescription('nueva descripcion')
+        //     ->setUrl('titulo-actualizado')
+        //     ->setUpdateDate(new \DateTime());
+        // $this->em->persist($post);
+        // $this->em->flush();
 
-        return new JsonResponse(['success'=>true]);
+        return new JsonResponse(['success'=>$postId]);
 
     }
 
