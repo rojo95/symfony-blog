@@ -14,16 +14,19 @@ function Megusta(info) {
             $('div#likes').html(data.likes);
             $('div#dislikes').html(data.dislikes);
             if (data.type) {
-                $('button#dislike').addClass('btn-outline-secondary').removeClass('btn-outline-success');
+                $('button#dislike').addClass('btn-outline-secondary').removeClass('btn-outline-danger');
                 if($('button#like').hasClass('btn-outline-secondary')) {
                     $('button#like').addClass('btn-outline-success').removeClass('btn-outline-secondary');
                 } else {
                     $('button#like').addClass('btn-outline-secondary').removeClass('btn-outline-success');
                 }
             } else {
-                $('button#like').addClass('btn-outline-secondary').removeClass('btn-outline-danger');
-                $('div#dislikes').html(data.dislikes);
-                $('button#dislike').addClass('btn-outline-danger').removeClass('btn-outline-secondary');
+                $('button#like').addClass('btn-outline-secondary').removeClass('btn-outline-success');
+                if($('button#dislike').hasClass('btn-outline-secondary')) {
+                    $('button#dislike').addClass('btn-outline-danger').removeClass('btn-outline-secondary');
+                } else {
+                    $('button#dislike').addClass('btn-outline-secondary').removeClass('btn-outline-danger');
+                }
             }
             console.log(data)
         }

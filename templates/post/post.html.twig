@@ -105,12 +105,12 @@
                                             </a>
                                         {% endif %}
                                     {% else %}
-                                        <button type="button" class="btn btn-outline-{% if liked|length > 0 and liked[0]['like_post'] %}success{% else %}secondary {% endif %}" id="like" onClick="Megusta([{{post.id}},true])">
+                                        <button type="button" id="like"  class="btn btn-outline-{% if liked|length > 0 and liked[0]['like_post'] %}success{% else %}secondary {% endif %}" onClick="Megusta([{{post.id}},true])">
                                             <i class="fa-solid fa-thumbs-up"></i>
                                             &nbsp;
                                             Me gusta
                                         </button>
-                                        <button type="button" class="btn btn-outline-{% if liked|length > 0 and liked[0]['like_post'] == false %}danger{% else %}secondary{% endif %}" id="dislike" onClick="Megusta([{{post.id}}])">
+                                        <button type="button" id="dislike"  class="btn btn-outline-{% if liked|length > 0 and liked[0]['like_post'] == false %}danger{% else %}secondary{% endif %}" onClick="Megusta([{{post.id}}])">
                                             <i class="fa-solid fa-thumbs-up"></i>
                                             &nbsp;
                                             No me gusta

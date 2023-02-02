@@ -243,14 +243,23 @@ class PostController extends AbstractController
             $dislikes = intval($post->getDislikes());
 
             if($type) {
+                // Si es un like
 
                 if ($postLiked == 'true') {
-                    
+                    /**
+                     * si el like ya existe, se elimina el registro de usuario por like por post
+                     * y se resta el like del post
+                     */
                     $likes = $likes-1;
                     $this->em->remove($postLike);
                     $post->setLikes($likes);
                     
                 } elseif ($postLiked == 'false') {
+                    /**
+                     * en caso de tener un dislike se suma un like y se resta un dislike al post
+                     * a su vez se modifica el registro de usuario por like por post 
+                     * para que se registre el like
+                     */
 
                     $likes = $likes+1;
                     $dislikes = $dislikes-1;
@@ -261,7 +270,11 @@ class PostController extends AbstractController
                     $this->em->persist($post);
                     
                 } else {
-                    
+                    /**
+                     * en caso de no existir, se creara un registro de persona por like por post con valor verdadero para 
+                     * poder identificarlo como like y se agrega un like al post
+                     *  */ 
+
                     $likes = $likes+1;
                     $postLike = new UserLikePost();
                     $postLike->setUserId($userId);
@@ -272,29 +285,24 @@ class PostController extends AbstractController
                     $this->em->persist($post);
 
                 }
-                // if ($postLike || $postLiked==true) {
-                //     $likes = $likes-1;
-                //     $this->em->remove($postLike);
-                // } else {
-                //     $likes = $likes+1;
-                //     $postLike = new UserLikePost();
-                //     $postLike->setUserId($userId);
-                //     $postLike->setPostId($id);
-                //     $postLike->setLikePost($type);
-                //     $this->em->persist($postLike);
-                // }
-                // $post->setLikes($likes);
-                // $this->em->persist($post);
                 $this->em->flush();
             } else {
+                // si es un dislike
 
                 if ($postLiked == 'false') {
-                    
+                    /**
+                     * si ya existe el dislike elimina el registro de usuario por like por post y quita un dislike del post
+                     *  */                    
                     $dislikes = $dislikes-1;
                     $this->em->remove($postLike);
                     $post->setDislikes($dislikes);
                     
                 } elseif ($postLiked == 'true') {
+                    /**
+                     * si tiene un like debe restarse un like y sumarse un dislike
+                     * a su vez se modifica el registro de usuario por like por post 
+                     * para que se registre el dislike
+                     *  */
 
                     $likes = $likes-1;
                     $dislikes = $dislikes+1;
@@ -305,6 +313,10 @@ class PostController extends AbstractController
                     $this->em->persist($post);
                     
                 } else {
+                    /**
+                     * en caso de no existir, se creara un registro de persona por like por post con valor falso para 
+                     * poder identificarlo como dislike y se agrega un dislike al post
+                     *  */ 
                     $dislikes = $dislikes+1;
                     $postLike = new UserLikePost();
                     $postLike->setUserId($userId);
@@ -320,6 +332,9 @@ class PostController extends AbstractController
                 
             }
 
+            /**
+             * se reornan los valores necesarios para el ajax
+             */
             return new JsonResponse([
                 'success'  => true,
                 'type' => $type,
