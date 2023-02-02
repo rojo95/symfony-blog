@@ -1,0 +1,49 @@
+:root {
+    --principal-color : #fa555f
+}
+
+body {
+    background-color: bisque;
+}
+
+.link-title {
+    text-decoration: none !important;
+}
+
+.text-purple {
+    color: #a855f7;
+}
+
+.heart-content > .heart {
+    /* animation: name duration timing-function delay iteration-count direction fill-mode; */
+    animation: palpito 1s linear .5s infinite;
+}
+
+.heart-content {
+    width: 29px;
+    height: 29px;
+}
+
+@keyframes palpito {
+    0% {
+        font-size: 15px;
+    }
+    30% {
+        font-size: 20px;
+    }
+    50%{
+        font-size: 15px;
+    }
+    60% {
+        font-size: 23px;
+    }
+    100% {
+        font-size: 15px;
+    }
+}
+
+.footer {
+    position: fixed;
+    width: 100%;
+    bottom: 0px;
+}

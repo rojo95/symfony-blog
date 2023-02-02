@@ -1,0 +1,10 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{parent()}} - {{title}}{% endblock %}
+
+{% block body %}
+<div>
+    {{form(form)}}
+    {{dump(types)}}
+</div>
+{% endblock %}

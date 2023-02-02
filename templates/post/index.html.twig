@@ -1,0 +1,89 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{parent()}} - {{title}}{% endblock %}
+
+{% block body %}
+<h1>{{title}}</h1>
+<div>
+    <div class="card">
+        <div class="card-body">
+            <div>
+                <a class="link-primary link-title" data-bs-toggle="collapse" href="#collapseNewPost" role="button" aria-expanded="false" aria-controls="collapseNewPost">
+                    Publicar Nuevo
+                </a>
+            </div>
+            <div class="collapse" id="collapseNewPost">
+                {% if is_granted('IS_AUTHENTICATED_REMEMBERED') %}
+                    {{form(form)}}
+                {% else %}
+                    <a href="{{path('app_login')}}" class="link-info">
+                        Debe iniciar sesión para poder publicar.
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    &nbsp;
+        
+        
+    {% for post in posts %}
+        <div class="card">
+            <div class="card-header">
+                <div class="row">
+                    <div class="col col-12 pt-1">
+                        <a class="link-info link-title" href="{{ path('post', {id:post.id}) }}"><h5 class="card-title text-right fs-3">{{post.title}}</h5></a>
+                    </div>
+                    <div class="col col-12">
+                        <small class="fs-6 text-muted align-middle">
+                            {{post.post_type}}
+                            {{post.creation_date | date("d/m/Y h:i A")}}                
+                        </small>
+                    </div>
+                    {# <div class="col col-12 col-sm-12 col-md-6 mb-0 text-end d-flex aligns-items-center h-100">
+                    </div> #}
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col d-flex">
+                        <p class="justify-content">
+                        {% set foo =  post.description|split(' ') %}    
+                        {% if foo|length > 40 %}
+                            {% set foo = foo|slice(0, 40) %}
+                            {{foo|join(' ')}}...            
+                        {% else %}
+                            {{foo|join(' ')}}           
+                        {% endif %}
+                        </p>
+                    </div>
+                    {% if post.file %}
+                        <div class="col col-12 col-sm-12 col-md-3 text-center">
+                            <img src="{{asset('uploads/posts/') ~ post.file}}" width="150px"/>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="card-footer text-end">
+                <form action="{{ path('watched') }}" method="POST">
+                    <input type="hidden" name="id" value="{{post.id}}">
+                    <button type="submit" class="btn link-info">Ver Más</button>                
+                </form>
+            </div>
+        </div>
+        &nbsp;
+    {% else %}
+        <div class="card bg-warning" data-bs-toggle="collapse" href="#collapseNewPost" role="button" aria-expanded="false" aria-controls="collapseNewPost">
+            <div class="card-body">
+                <p class="card-text text-light">Aún no se ha creado ningún post, ¡sé el primero!</p>
+            </div>
+        </div>
+    {% endfor %}
+
+    <div class="navigation">
+        {{ knp_pagination_render(posts) }}
+    </div>
+
+</div>
+{% endblock %}
+
+
