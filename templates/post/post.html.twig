@@ -32,19 +32,19 @@
                             </div>
                             <div class="row">
                                 <div class="col">
-                                    <small class="text-mutted">
+                                    <small class="text-muted">
                                         {{post.name ~ ' - '}}
                                         {% if post.update_date %}
-                                            {{post.update_date|date('h:m A') ~ ' - Actualizado'}}
+                                            {{post.update_date|date('h:i A') ~ ' - Actualizado'}}
                                         {% else %}
-                                            {{post.creation_date|date('h:m A')}}
+                                            {{post.creation_date|date('h:i A')}}
                                         {% endif %}
                                     </small>
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col">
-                                    <small class="text-mutted d-flex my-0 py-0">
+                                    <small class="text-muted d-flex my-0 py-0">
                                         <p>
                                             <div>
                                                 <i class="fa-solid fa-thumbs-up" title="likes"></i>
@@ -93,7 +93,7 @@
                                         </button>
                                         {% if post.status %}
                                             <a href="{{path('remove_post', {id:post.id})}}" class="btn btn-danger">
-                                                <i class="fa-sharp fa-solid fa-trash"></i>
+                                                <i class="fa-solid fa-eye-slash"></i>
                                                 &nbsp;
                                                 Deshabilitar
                                             </a>
@@ -111,7 +111,7 @@
                                             Me gusta
                                         </button>
                                         <button type="button" id="dislike"  class="btn btn-outline-{% if liked|length > 0 and liked[0]['like_post'] == false %}danger{% else %}secondary{% endif %}" onClick="Megusta([{{post.id}}])">
-                                            <i class="fa-solid fa-thumbs-up"></i>
+                                            <i class="fa-solid fa-thumbs-down"></i>
                                             &nbsp;
                                             No me gusta
                                         </button>
@@ -135,7 +135,7 @@
             </div>
         </div>
     </div>
-    {# <div class="card my-3">
+    <div class="card my-3">
         <div class="card-body">
             <div>
                 <a class="link-primary link-title" data-bs-toggle="collapse" href="#collapseNewPost" role="button" aria-expanded="false" aria-controls="collapseNewPost">
@@ -156,8 +156,29 @@
     </div>
     {% for row in commentaries %}
         <div class="card">
+            <div class="card-header">
+                <div class="row">
+                    <div class="col fs-6">
+                        {{row.username}} dice:
+                    </div>
+                    <div class="col text-end text-muted"><small>{{row.creation_date|date('d/M/y h:i A')}}</small></div>
+                </div>
+            </div>
             <div class="card-body">
-                {{dump(row)}}
+                <div class="row">
+                    <div class="col">
+                        {{row.message}}
+                    </div>
+                </div>
+                {# <div class="row">
+                    <div class="col text-end">
+                        <a href="{{path('remove_post', {id:post.id})}}" class="btn btn-light text-muted btn-sm">
+                            <i class="fa-sharp fa-solid fa-trash"></i>
+                            &nbsp;
+                            Borrar
+                        </a>
+                    </div>
+                </div> #}
             </div>
         </div>
     {% else %}
@@ -166,7 +187,7 @@
                 Aún no hay ningún comentario, ¡sé el primero!
             </div>
         </div>
-    {% endfor %} #}
+    {% endfor %}
 </div>
 {% endblock %}
 

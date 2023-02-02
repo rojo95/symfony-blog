@@ -111,20 +111,20 @@ class PostController extends AbstractController
      * @param $id
      */
     #[Route('/post/{id}', name: 'post')]
-    public function show($id, UserInterface $user = null): Response
+    public function show($id, UserInterface $user = null,Request $req): Response
     {
         $post = $this->em->getRepository(Post::class)->findPostbyId($id);
         $commentaries = $this->em->getRepository(PostCommentary::class)->messagesByPost($id);
         $postCommentary = new PostCommentary();
         $form = $this->createForm(PostCommentaryType::class, $postCommentary);
+        $form->handleRequest($req);
 
         if ( $form->isSubmitted() && $form->isValid() ) {
-            dd($postCommentary);
             $postCommentary->setUserId($user->getId())
-                ->setPostId($id);
+            ->setPostId($id);
             $this->em->persist($postCommentary);
             $this->em->flush();
-            return $this->redirectToRoute('post');;
+            return $this->redirectToRoute('post',['id'=>$id]);
         }
 
         if($post['status'] == false) {
