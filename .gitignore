@@ -20,3 +20,7 @@
 .phpunit.result.cache
 /phpunit.xml
 ###< symfony/phpunit-bridge ###
+
+###> visual studio code configuration ###
+.vscode
+###< visual studio code configuration ###

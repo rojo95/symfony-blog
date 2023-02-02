@@ -292,7 +292,7 @@ class PostController extends AbstractController
                     
                     $dislikes = $dislikes-1;
                     $this->em->remove($postLike);
-                    $post->setLikes($dislikes);
+                    $post->setDislikes($dislikes);
                     
                 } elseif ($postLiked == 'true') {
 
@@ -305,17 +305,18 @@ class PostController extends AbstractController
                     $this->em->persist($post);
                     
                 } else {
-
                     $dislikes = $dislikes+1;
                     $postLike = new UserLikePost();
                     $postLike->setUserId($userId);
                     $postLike->setPostId($id);
                     $postLike->setLikePost($type);
                     $this->em->persist($postLike);
-                    $post->setLikes($dislikes);
+                    $post->setDislikes($dislikes);
                     $this->em->persist($post);
 
                 }
+
+                $this->em->flush();
                 
             }
 
