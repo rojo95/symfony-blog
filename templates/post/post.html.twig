@@ -2,6 +2,11 @@
 
 {% block title %}{{parent()}} - {{title}}{% endblock %}
 
+{% block stylesheets %}
+    {{parent()}}
+    <link rel="stylesheet" href="{{asset('css/post.css')}}" />
+{% endblock %}
+
 {% block body %}
 <div class="mb-4">
     <div class="card">
@@ -83,22 +88,18 @@
                             </div>
                         </div>
                         {% if is_granted('IS_AUTHENTICATED_REMEMBERED') %}
-                            <div class="col col-4 pt-3 text-end">
-                                <div class="btn-group" role="group" aria-label="Basic example">
+                            <div class="col col-12 col-lg-5 pt-3 text-md-end text-center">
+                                <div class="btn-group" role="group">
                                     {% if post.user_id == app.user.id %}
-                                        {# <a href="{{path('update_post', {id:post.id})}}" class="btn btn-primary">
-                                            <i class="fa-solid fa-pencil"></i>
-                                            &nbsp;
-                                            Modificar
-                                        </a> #}
+                                        {{form(modificar)}}
                                         {% if post.status %}
-                                            <a href="{{path('remove_post', {id:post.id})}}" class="btn btn-danger">
+                                            <a href="{{path('remove_post', {id:post.id})}}" class="btn-danger btn mb-3">
                                                 <i class="fa-solid fa-eye-slash"></i>
                                                 &nbsp;
                                                 Deshabilitar
                                             </a>
                                         {% else %}
-                                            <a href="{{path('remove_post', {id:post.id})}}" class="btn btn-success">
+                                            <a href="{{path('remove_post', {id:post.id})}}" class="btn-success btn">
                                                 <i class="fa-sharp fa-solid fa-eye"></i>
                                                 &nbsp;
                                                 Activar                                        
@@ -124,7 +125,7 @@
                     <div class="row">
                         <div class="col">
                             <p class="card-text me-4">{{post.description}}</p>
-                            <a href="{{path('new_post')}}" class="btn btn-light text-info">
+                            <a href="{{path('new_post')}}" class="btn btn-light text-info mb-0">
                                 <i class="fa-solid fa-arrow-left"></i>
                                 &nbsp;
                                 Volver
@@ -173,7 +174,7 @@
                 <div class="row">
                     <div class="col text-end">
                         <form action="{{path('comentary_delete')}}" method="POST">
-                            <input type="hidden" name="_method" value="PUT" />
+                            <input type="hidden" name="_method" value="DELETE" />
                             <input type="hidden" name="id" value="{{row.id}}" />
                             <button type="submit" class="btn btn-light text-muted btn-sm">
                                 <i class="fa-sharp fa-solid fa-trash"></i>

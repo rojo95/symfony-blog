@@ -4,16 +4,21 @@ namespace App\Controller;
 
 use App\Entity\Post;
 use App\Entity\PostCommentary;
-use App\Entity\User;
 use App\Entity\UserLikePost;
 use App\Form\CreatePostType;
 use App\Form\PostCommentaryType;
+use App\Form\PostUpdateType;
 use Defuse\Crypto\Crypto;
 use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\ORM\Mapping\Id;
 use Exception;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Asset\Package;
+use Symfony\Component\Asset\VersionStrategy\EmptyVersionStrategy;
+use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -22,8 +27,6 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\String\Slugger\SluggerInterface;
 
-use function PHPSTORM_META\type;
-use function PHPUnit\Framework\isNan;
 
 /**
  * controlador de los post del blog
@@ -114,10 +117,31 @@ class PostController extends AbstractController
     public function show($id, UserInterface $user = null,Request $req): Response
     {
         $post = $this->em->getRepository(Post::class)->findPostbyId($id);
+        if($post['status'] == false) {
+            if ($user == null || $user->getId() != $post['user_id']) {
+                return $this->redirectToRoute('new_post');
+            }
+        }
+
         $commentaries = $this->em->getRepository(PostCommentary::class)->messagesByPost($id);
         $postCommentary = new PostCommentary();
         $form = $this->createForm(PostCommentaryType::class, $postCommentary);
         $form->handleRequest($req);
+
+        $buttonModificar = $this->createFormBuilder()
+            ->setAction($this->generateUrl('update_post', ['id' => $id]  ))
+            ->setMethod('GET')
+            // ->add('id',HiddenType::class, [
+            //     'data' => $post['id']
+            // ])
+            ->add('Modificar', SubmitType::class, [
+                'label' => '<i class="fa-solid fa-pencil"></i>&nbsp;&nbsp;Modificar',
+                'label_html' => true,
+                'attr' => [
+                    'class' => "btn btn-primary btn-radius-righ-none"
+                ]
+            ])
+            ->getForm(); 
 
         if ( $form->isSubmitted() && $form->isValid() ) {
             $postCommentary->setUserId($user->getId())
@@ -127,17 +151,12 @@ class PostController extends AbstractController
             return $this->redirectToRoute('post',['id'=>$id]);
         }
 
-        if($post['status'] == false) {
-            if ($user == null || $user->getId() != $post['user_id']) {
-                return $this->redirectToRoute('new_post');
-            }
-        }
-
         $infoArray = [
             'title' => $post['title'],
             'commentaries' => $commentaries,
             'post' => $post,
             'form' => $form->createView(),
+            'modificar' => $buttonModificar->createView(),
         ];
 
         if ($user) {
@@ -176,14 +195,36 @@ class PostController extends AbstractController
 
 
     /**
+     * @param $id
      * @Route("/update/post/{id}", name="update_post")
      */
     #[Route('/update/post/{id}', name: 'update_post')]
-    public function update(Request $req, UserInterface $user)
+    public function update($id, Request $req, UserInterface $user)
     {
-        $postId = $req->request;
-        dd($postId);
         $userId = $user->getId();
+        $postData = $this->em->getRepository(Post::class)->find(intval($id));
+        if($postData->getUserId() != $userId) {
+            return $this->redirectToRoute('new_post');
+        }
+        $post = new Post();
+        $post->setTitle($postData->getTitle());
+        $post->setDescription($postData->getDescription());
+        $post->setType($postData->getType());
+        
+        $form = $form = $this->createForm(PostUpdateType::class, $post, [
+            'method' => 'PUT',
+            'action' => $this->generateUrl('edit')
+            ])->add('id',HiddenType::class, [
+                'data' => $id
+            ]);
+        
+        $form->handleRequest($req);
+        
+        return $this->render('post/update.html.twig', [
+            'title' => 'Actualizar Post',
+            'form' => $form->createView(),
+            'post' => $postData
+        ]);
         // $post = $this->em->getRepository(Post::class)->find($postId);
         // $post->setTitle('Titulo actualizado')
         //     ->setDescription('nueva descripcion')
@@ -192,7 +233,68 @@ class PostController extends AbstractController
         // $this->em->persist($post);
         // $this->em->flush();
 
-        return new JsonResponse(['success'=>$postId]);
+        // return new JsonResponse(['success'=>$postId]);
+
+    }
+
+    /**
+     * @Route("/update/post/", name="edit", methods={"PUT"})
+     */
+    #[Route('/update/post/', name: 'edit', methods: ['PUT'])]
+    public function edit(Request $req, UserInterface $user, SluggerInterface $slugger)
+    {
+        if ($req->getMethod() == Request::METHOD_PUT){
+            
+            $userId = $user->getId();
+            $post = $req->request->all()['post_update'];
+            $postId = $post['id'];
+            $postData = $this->em->getRepository(Post::class)->find(intval($postId));
+            if($postData->getUserId() != $userId) {
+                return $this->redirectToRoute('new_post');
+            }
+
+            $file = $req->files->all()['post_update']['file'];
+
+            if ($file) {
+
+                $nameNormalized = preg_replace('([^A-Za-z0-9\s])', '', $post['title']);
+                $nameNormalized = str_replace(" ", "-", strtolower($nameNormalized));
+
+                // Se le crea un nombre seguro al archivo
+                // $safeFilename = $slugger->slug($originalFileName);
+                $safeFilename = $slugger->slug($nameNormalized);
+                $newFilename = $safeFilename.'-'.uniqid().'.'.$file->guessExtension();
+                
+                try {
+                    
+                    $filesystem = new Filesystem();
+                    // se declara el nombre del viejo archivo y su ruta
+                    $oldFilename = $postData->getFile();
+                    $path = $this->getParameter('files_directory').'/'.$oldFilename;
+                    // se elimina el archivo anteriormente registrado
+                    $filesystem->remove($path);
+                    
+                    // se mueve el nuevo archivo al directorio de almacenamiento
+                    $file->move(
+                        $this->getParameter('files_directory'),
+                        $newFilename
+                    );
+                } catch (FileException $e) {
+                    throw new Exception('Hubo un problema con el archivo');
+                }
+
+                $postData->setFile($newFilename);
+            }
+
+            $postData->setTitle($post['title'])
+                ->setDescription($post['description'])
+                ->setType($post['type'])
+                ->setUpdateDate(new \DateTime());
+            $this->em->persist($postData);
+            $this->em->flush();
+            
+            return $this->redirectToRoute('post',['id'=>$postId]);
+        }
 
     }
 

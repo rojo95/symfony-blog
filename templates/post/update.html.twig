@@ -7,13 +7,13 @@
     <div class="card">
         <div class="row">
             {% if post.file %}
-                <div class="d-none d-lg-block col-md-4">
-                    <img src="{{asset('uploads/posts/' ~ post.file)}}" class="img-fluid rounded-start" alt="{{post.title}}">
+                <div id='image-div' class="d-none d-lg-block col-md-4">
+                    <img src="{{asset('uploads/posts/' ~ post.file)}}" class="image-post img-fluid rounded-start" alt="{{post.title}}">
                 </div>
             {% endif %}
             <div class="col">
                 {% if post.file %}
-                    <img src="{{asset('uploads/posts/' ~ post.file)}}" class="card-img-top d-block d-lg-none" alt="{{post.title}}">
+                    <img src="{{asset('uploads/posts/' ~ post.file)}}" class="image-post card-img-top d-block d-lg-none" alt="{{post.title}}">
                 {% endif %}
                 <div class="card-body">
                     <div class="row">
@@ -21,25 +21,12 @@
                             <div class="row">
                                 <div class="col">
                                     <h4 class="card-title">
-                                        {{post.title ~ ' - ' ~ post.type}}
                                         {% if not post.status %}
                                             <span class="badge bg-secondary fs-6">
                                                 Deshabilitado                                        
                                             </span>
                                         {% endif %}
                                     </h4>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col">
-                                    <small class="text-muted">
-                                        {{post.name ~ ' - '}}
-                                        {% if post.update_date %}
-                                            {{post.update_date|date('h:i A') ~ ' - Actualizado'}}
-                                        {% else %}
-                                            {{post.creation_date|date('h:i A')}}
-                                        {% endif %}
-                                    </small>
                                 </div>
                             </div>
                             <div class="row">
@@ -67,90 +54,27 @@
                                         </p>
                                         &nbsp;
                                         &nbsp;
-                                        {% if is_granted('IS_AUTHENTICATED_REMEMBERED') and post.user_id == app.user.id %}
-                                            <p>
-                                                <div>
-                                                    <i class="fa-sharp fa-solid fa-eye" title="vistas"></i>
-                                                </div>
-                                                <div>
-                                                    &nbsp;
-                                                    {{post.watched}}
-                                                </div>
-                                            </p>
-                                        {% endif %}
+                                        <p>
+                                            <div>
+                                                <i class="fa-sharp fa-solid fa-eye" title="vistas"></i>
+                                            </div>
+                                            <div>
+                                                &nbsp;
+                                                {{post.watched}}
+                                            </div>
+                                        </p>
                                     </small>
                                 </div>
                             </div>
                         </div>
-                        {% if is_granted('IS_AUTHENTICATED_REMEMBERED') %}
-                            <div class="col col-4 pt-3 text-end">
-                                <div class="btn-group" role="group" aria-label="Basic example">
-                                    {% if post.user_id == app.user.id %}
-                                        <button type="button" class="btn btn-primary">
-                                            <i class="fa-solid fa-pencil"></i>
-                                            &nbsp;
-                                            Modificar
-                                        </button>
-                                        {% if post.status %}
-                                            <a href="{{path('remove_post', {id:post.id})}}" class="btn btn-danger">
-                                                <i class="fa-solid fa-eye-slash"></i>
-                                                &nbsp;
-                                                Deshabilitar
-                                            </a>
-                                        {% else %}
-                                            <a href="{{path('remove_post', {id:post.id})}}" class="btn btn-success">
-                                                <i class="fa-sharp fa-solid fa-eye"></i>
-                                                &nbsp;
-                                                Activar                                        
-                                            </a>
-                                        {% endif %}
-                                    {% else %}
-                                        <button type="button" id="like"  class="btn btn-outline-{% if liked|length > 0 and liked[0]['like_post'] %}success{% else %}secondary {% endif %}" onClick="Megusta([{{post.id}},true])">
-                                            <i class="fa-solid fa-thumbs-up"></i>
-                                            &nbsp;
-                                            Me gusta
-                                        </button>
-                                        <button type="button" id="dislike"  class="btn btn-outline-{% if liked|length > 0 and liked[0]['like_post'] == false %}danger{% else %}secondary{% endif %}" onClick="Megusta([{{post.id}}])">
-                                            <i class="fa-solid fa-thumbs-down"></i>
-                                            &nbsp;
-                                            No me gusta
-                                        </button>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        {% endif %}
                     </div>
                     <hr/>
                     <div class="row">
                         <div class="col">
-                            <p class="card-text me-4">{{post.description}}</p>
-                            <a href="{{path('new_post')}}" class="btn btn-light text-info">
-                                <i class="fa-solid fa-arrow-left"></i>
-                                &nbsp;
-                                Volver
-                            </a>
+                            {{form(form)}}
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
-    <div class="card my-3">
-        <div class="card-body">
-            <div>
-                <a class="link-primary link-title" data-bs-toggle="collapse" href="#collapseNewPost" role="button" aria-expanded="false" aria-controls="collapseNewPost">
-                    Comentar
-                </a>
-            </div>
-            <div class="collapse" id="collapseNewPost">
-                <hr/>
-                {% if is_granted('IS_AUTHENTICATED_REMEMBERED') %}
-                    {{form(form)}}
-                {% else %}
-                    <a href="{{path('app_login')}}" class="link-info">
-                        Debe iniciar sesión para poder comentar.
-                    </a>
-                {% endif %}
             </div>
         </div>
     </div>
@@ -161,5 +85,6 @@
     {{parent()}}
     <script src="{{ asset('bundles/fosjsrouting/js/router.min.js') }}"></script>
     <script src="{{ path('fos_js_routing_js', { callback: 'fos.Router.setData' }) }}"></script>
-    <script src="{{asset('js/ajax-call.js')}}"></script>
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="{{asset('js/updae-post.js')}}"></script>
 {% endblock %}
