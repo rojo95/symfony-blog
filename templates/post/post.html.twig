@@ -156,7 +156,7 @@
         </div>
     </div>
     {% for row in commentaries %}
-        <div class="card">
+        <div class="card mb-2">
             <div class="card-header">
                 <div class="row">
                     <div class="col fs-6">
@@ -193,6 +193,9 @@
             </div>
         </div>
     {% endfor %}
+    <div class="navigation">
+        {{ knp_pagination_render(commentaries) }}
+    </div>
 </div>
 {% endblock %}
 

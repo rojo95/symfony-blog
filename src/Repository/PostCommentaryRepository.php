@@ -48,7 +48,7 @@ class PostCommentaryRepository extends ServiceEntityRepository
                  pc.id, pc.message, u.username,pc.creation_date
             FROM post_commentary pc
             INNER JOIN user u ON pc.user_id = u.id
-            WHERE pc.id = :id
+            WHERE pc.post_id = :id
             ORDER BY pc.creation_date DESC
         ";
 

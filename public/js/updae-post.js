@@ -11,6 +11,10 @@ const Toast = Swal.mixin({
 })
 
 $(document).ready(function(){
+    $('.atras').click(()=> {
+        window.history.back()
+    });
+    
     $('#post_update_file').change(function(e){
 
         var fileExtension = ['jpeg', 'jpg', 'png'];

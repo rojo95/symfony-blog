@@ -76,7 +76,7 @@ class PostController extends AbstractController
             $url = str_replace(" ", "-", strtolower($url));
 
             if ($file) {
-                $originalFileName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+                // $originalFileName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
 
                 // Se le crea un nombre seguro al archivo
                 // $safeFilename = $slugger->slug($originalFileName);
@@ -114,7 +114,7 @@ class PostController extends AbstractController
      * @param $id
      */
     #[Route('/post/{id}', name: 'post')]
-    public function show($id, UserInterface $user = null,Request $req): Response
+    public function show($id, UserInterface $user = null, Request $req, PaginatorInterface $paginator): Response
     {
         $post = $this->em->getRepository(Post::class)->findPostbyId($id);
         if($post['status'] == false) {
@@ -123,7 +123,15 @@ class PostController extends AbstractController
             }
         }
 
-        $commentaries = $this->em->getRepository(PostCommentary::class)->messagesByPost($id);
+        $query = $this->em->getRepository(PostCommentary::class)->messagesByPost($id);
+
+        $pagination = $paginator->paginate(
+            $query, /* query NO result */
+            $req->query->getInt('page', 1), /*pagina inicial*/
+            4 /*limite de registros por pagina*/,
+            ['label_previous'=>'atras']
+        );
+
         $postCommentary = new PostCommentary();
         $form = $this->createForm(PostCommentaryType::class, $postCommentary);
         $form->handleRequest($req);
@@ -131,9 +139,6 @@ class PostController extends AbstractController
         $buttonModificar = $this->createFormBuilder()
             ->setAction($this->generateUrl('update_post', ['id' => $id]  ))
             ->setMethod('GET')
-            // ->add('id',HiddenType::class, [
-            //     'data' => $post['id']
-            // ])
             ->add('Modificar', SubmitType::class, [
                 'label' => '<i class="fa-solid fa-pencil"></i>&nbsp;&nbsp;Modificar',
                 'label_html' => true,
@@ -153,7 +158,7 @@ class PostController extends AbstractController
 
         $infoArray = [
             'title' => $post['title'],
-            'commentaries' => $commentaries,
+            'commentaries' => $pagination,
             'post' => $post,
             'form' => $form->createView(),
             'modificar' => $buttonModificar->createView(),
@@ -211,6 +216,8 @@ class PostController extends AbstractController
         $post->setDescription($postData->getDescription());
         $post->setType($postData->getType());
         
+        // se agrego el metodo put y accion de direccion del formulario junto con 
+        // el campo id
         $form = $form = $this->createForm(PostUpdateType::class, $post, [
             'method' => 'PUT',
             'action' => $this->generateUrl('edit')
@@ -225,15 +232,6 @@ class PostController extends AbstractController
             'form' => $form->createView(),
             'post' => $postData
         ]);
-        // $post = $this->em->getRepository(Post::class)->find($postId);
-        // $post->setTitle('Titulo actualizado')
-        //     ->setDescription('nueva descripcion')
-        //     ->setUrl('titulo-actualizado')
-        //     ->setUpdateDate(new \DateTime());
-        // $this->em->persist($post);
-        // $this->em->flush();
-
-        // return new JsonResponse(['success'=>$postId]);
 
     }
 
