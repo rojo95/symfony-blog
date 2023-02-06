@@ -1,3 +1,6 @@
+const Toast = Swal.mixin({
+})
+
 /**
  * 
  * @param {*} info 
@@ -32,3 +35,77 @@ function Megusta(info) {
         }
     });
 }
+
+
+
+$(document).ready(function(){
+    $('button.borrar').click(function(){
+        var com = $(this).parent().children('input[name=id]').val();
+        const commentaryContainer = $(this).closest('.card');
+        Toast.fire({
+            icon: 'warning',
+            title: '¿Estás seguro de eliminar el comentario?',
+            text: "¡Ésta acción no puede ser revertida!",
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            confirmButtonText: 'ELIMINAR COMENTARIO',
+            cancelButtonText: 'Cancelar',
+        }).then((result) => {
+            if (result.isConfirmed) {
+
+                const ruta = Routing.generate('comentary_delete');
+                $.ajax({
+                    type: 'DELETE',
+                    url: ruta,
+                    data: ({ id: com }),
+                    async: true,
+                    dataType: 'json',
+                    success: function(res) {
+
+                        if (res.success) {
+
+                            Toast.fire({
+                                showConfirmButton: false,
+                                toast: true,
+                                timer: 3000,
+                                timerProgressBar: true,
+                                didOpen: (toast) => {
+                                    toast.addEventListener('mouseenter', Swal.stopTimer)
+                                    toast.addEventListener('mouseleave', Swal.resumeTimer)
+                                },
+                                position: 'top-end',
+                                icon: 'success',
+                                title: 'Comentario eliminado correctamente.'
+                            });
+                            
+                            commentaryContainer.remove()
+            
+                            if($('.commentary').length <=0){
+                                $('div.card.my-3').after('<div class="card"><div class="card-body">Aún no hay ningún comentario, ¡sé el primero!</div></div>');
+                            }
+                            
+                        } else {
+                            Toast.fire({
+                                showConfirmButton: false,
+                                toast: true,
+                                timer: 3000,
+                                timerProgressBar: true,
+                                didOpen: (toast) => {
+                                    toast.addEventListener('mouseenter', Swal.stopTimer)
+                                    toast.addEventListener('mouseleave', Swal.resumeTimer)
+                                },
+                                position: 'top-end',
+                                icon: 'error',
+                                title: 'Error al eliminar el comentario.'
+                            });
+                        }
+
+
+                    }
+                })
+
+            }
+        })
+
+    });
+});

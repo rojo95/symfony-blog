@@ -45,7 +45,7 @@ class PostCommentaryRepository extends ServiceEntityRepository
 
         $sql = "
             SELECT 
-                 pc.id, pc.message, u.username,pc.creation_date
+                 pc.id, pc.message, u.username,pc.creation_date,pc.user_id
             FROM post_commentary pc
             INNER JOIN user u ON pc.user_id = u.id
             WHERE pc.post_id = :id

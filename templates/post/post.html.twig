@@ -156,7 +156,7 @@
         </div>
     </div>
     {% for row in commentaries %}
-        <div class="card mb-2">
+        <div class="card mb-2 commentary">
             <div class="card-header">
                 <div class="row">
                     <div class="col fs-6">
@@ -171,19 +171,18 @@
                         {{row.message}}
                     </div>
                 </div>
+                {% if row.user_id == app.user.id %}
                 <div class="row">
                     <div class="col text-end">
-                        <form action="{{path('comentary_delete')}}" method="POST">
-                            <input type="hidden" name="_method" value="DELETE" />
-                            <input type="hidden" name="id" value="{{row.id}}" />
-                            <button type="submit" class="btn btn-light text-muted btn-sm">
-                                <i class="fa-sharp fa-solid fa-trash"></i>
-                                &nbsp;
-                                Borrar
-                            </button>
-                        <form>
+                        <input type="hidden" name="id" value="{{row.id}}" />
+                        <button type="button" class="btn btn-light text-muted btn-sm borrar">
+                            <i class="fa-sharp fa-solid fa-trash"></i>
+                            &nbsp;
+                            Borrar
+                        </button>
                     </div>
                 </div>
+                {% endif %}
             </div>
         </div>
     {% else %}
@@ -203,5 +202,6 @@
     {{parent()}}
     <script src="{{ asset('bundles/fosjsrouting/js/router.min.js') }}"></script>
     <script src="{{ path('fos_js_routing_js', { callback: 'fos.Router.setData' }) }}"></script>
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="{{asset('js/ajax-call.js')}}"></script>
 {% endblock %}
