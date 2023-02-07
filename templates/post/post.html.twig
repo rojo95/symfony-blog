@@ -171,7 +171,7 @@
                         {{row.message}}
                     </div>
                 </div>
-                {% if row.user_id == app.user.id %}
+                {% if app.user and row.user_id == app.user.id %}
                 <div class="row">
                     <div class="col text-end">
                         <input type="hidden" name="id" value="{{row.id}}" />

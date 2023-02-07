@@ -37,7 +37,7 @@
                                 Usuario: {{ app.user.username }}
                             </a>
                             <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="#">
+                                <li><a class="dropdown-item" href="{{path('user',{id:app.user.id})}}">
                                     <i class="fa-solid fa-user"></i>
                                     &nbsp;
                                     Información de Usuario

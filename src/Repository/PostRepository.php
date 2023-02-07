@@ -102,6 +102,17 @@ class PostRepository extends ServiceEntityRepository
         
     }
 
+    public function findByUser(int $id = null)
+    {
+        return $this->getEntityManager()
+        ->createQuery('
+            SELECT p.id, p.title, p.description, p.creation_date, p.watched, p.url, p.file, p.user_id, p.type as post_type, p.likes, p.dislikes
+            FROM App:post p
+            WHERE p.user_id = :id
+            ORDER BY p.creation_date DESC
+        ')->setParameter('id',$id);
+    }
+
 //    /**
 //     * @return Post[] Returns an array of Post objects
 //     */

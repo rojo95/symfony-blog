@@ -2,9 +2,11 @@
 
 namespace App\Controller;
 
+use App\Entity\Post;
 use App\Entity\User;
 use App\Form\RegisterUsersType;
 use Doctrine\ORM\EntityManagerInterface;
+use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -52,6 +54,32 @@ class UserController extends AbstractController
             'title' => 'Registro de Usuario',
             'form' => $form->createView(),
             'user' => $user
+        ]);
+    }
+
+    /**
+     * @Route("/user/{id}", name="user")
+     */
+    public function showUser(Request $req, $id, PaginatorInterface $paginator,): Response
+    {
+
+        $user = $this->em->getRepository(User::class)->findByUserId($id);
+
+        $query = $this->em->getRepository(Post::class)->findByUser($user['id']);
+
+        $posts = $paginator->paginate(
+            $query, /* query NO result */
+            $req->query->getInt('page', 1), /*pagina inicial*/
+            5 /*limite de registros por pagina*/,
+            ['label_previous'=>'atras']
+        );
+
+
+        
+        return $this->render('user/user.html.twig', [
+            'title' => 'Usuario '.$user['username'],
+            'user' => $user,
+            'posts' => $posts
         ]);
     }
 }

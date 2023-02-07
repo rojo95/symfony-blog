@@ -1,0 +1,164 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{title}}{% endblock %}
+
+{% block body %}
+<div class="row mb-4">
+    <div class="col col-12 col-lg-4 mb-3">
+        <div class="card">
+            <div class="card-header">
+                <h3>
+                    {{user.name|title}}
+                </h3>
+            </div>
+            <div class="card-body">
+                <div class="row text-center mb-3">
+                    <div class-"col">
+                        <img src="{% if user.photo == null %}{{ asset('images/profile.png') }}{% else %}{{asset('uploads/profiles/' ~ user.photo)}}{% endif %}" alt={{user.name}} class="w-50"/>
+                    </div>
+                </div>
+                <div class="row my-1">
+                    <div class="col col-12 col-md col-lg-12">
+                        <p class="fs-5">
+                            <b>Usuario:</b>
+                            <br>
+                            {{user.username}}
+                        </p>
+                    </div>
+                    <div class="col col-12 col-md col-lg-12">
+                        <p class="fs-5">
+                            <b>Correo Electrónico:</b>
+                            <br>
+                            {{user.email}}
+                        </p>
+                    </div>
+                </div>
+                <div class="row my-1">
+                    <div class="col col-12 col-md col-lg-12">
+                        <p class="fs-5">
+                            <b>Roles</b> 
+                                {% set roles = user.roles|replace({'["': '', '"]': ''})|split(',') %}
+                            <ul>
+                                {% for rol in roles %}
+                                <li>
+                                    {% if rol == "ROLE_USER" %}
+                                        Usuario
+                                    {% else %}
+                                        Administrador
+                                    {% endif %}
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </p>
+                    </div>
+                    <div class="col col-12 col-md col-lg-12">
+                        <p class="fs-5">
+                            <b>Fecha de Registro:</b>
+                            <br>
+                            {{user.creation_date|date('d/m/Y - h:i:s A')}}
+                        </p>
+                    </div>
+                </div>
+            </div>
+            {# <div class="card-footer text-end">
+                <a href="#" class="btn btn-primary">Modificar</a>
+            </div> #}
+        </div>
+    </div>
+    <div class="col mb-3">
+        <div class="card">
+            <div class="card-header mt-2 py-0">
+                <p class="fs-4">
+                    Posts
+                </p>
+            </div>
+            <div class="card-body">
+                {% for post in posts %}
+                    <div class="row">
+                        <div class="col">
+                            <div class="row">
+                                <div class="col">
+                                    <form action="{{ path('watched') }}" method="POST">
+                                        <input type="hidden" name="id" value="{{post.id}}">
+                                        <button type="submit" class="btn link-info card-title text-right btn-lg">{{post.title}} - {{post.post_type == 1 ? 'Opinión' : (post.post_type == 2 ? 'Noticias' : 'Historia')}}</button>
+                                    </form>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col">
+                                    <small class="text-muted d-flex my-0 py-0">
+                                        <p>
+                                            <div>
+                                                <i class="fa-solid fa-thumbs-up" title="likes"></i>
+                                                &nbsp;
+                                            </div>
+                                            <div id="likes">
+                                                {{post.likes}} 
+                                            </div>
+                                        </p>
+                                        &nbsp;
+                                        &nbsp;
+                                        <p>
+                                            <div>
+                                                <i class="fa-solid fa-thumbs-down" title='dislikes'></i>
+                                                &nbsp;
+                                            </div>
+                                            <div id="dislikes">
+                                                {{post.dislikes}} 
+                                            </div>
+                                        </p>
+                                        &nbsp;
+                                        &nbsp;
+                                        {% if is_granted('IS_AUTHENTICATED_REMEMBERED') and post.user_id == app.user.id %}
+                                            <p>
+                                                <div>
+                                                    <i class="fa-sharp fa-solid fa-eye" title="vistas"></i>
+                                                </div>
+                                                <div>
+                                                    &nbsp;
+                                                    {{post.watched}}
+                                                </div>
+                                            </p>
+                                        {% endif %}
+                                    </small>
+                                </div>
+                                
+                            </div>
+                            <div class="row">
+                                <div class="col">
+                                    <small class="text-muted">{{post.creation_date|date('d/m/y - h:i A')}}</small>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col">
+                                    <p class="fs-6">
+                                        {% set foo =  post.description|split(' ') %}    
+                                        {% if foo|length > 40 %}
+                                            {% set foo = foo|slice(0, 40) %}
+                                            {{foo|join(' ')}}...            
+                                        {% else %}
+                                            {{foo|join(' ')}}           
+                                        {% endif %}
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col text-end">
+                                    <form action="{{ path('watched') }}" method="POST">
+                                        <input type="hidden" name="id" value="{{post.id}}">
+                                        <button type="submit" class="btn link-info">Ver Más</button>                
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <hr>
+                {% endfor %}
+            </div>
+            <div class="navigation">
+                {{ knp_pagination_render(posts) }}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
